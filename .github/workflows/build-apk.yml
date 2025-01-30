@@ -1,0 +1,37 @@
+name: Build APK
+
+on:
+  push:
+    branches:
+      - main  # Executa o workflow quando houver push na branch "main"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Usa uma máquina virtual com Ubuntu
+
+    steps:
+      # Passo 1: Baixa o código do repositório
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Passo 2: Configura o JDK (Java Development Kit)
+      - name: Set up JDK
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'  # Escolha a distribuição do JDK (ex: temurin, zulu, etc.)
+          java-version: '11'       # Usa Java 11 (necessário para Android)
+
+      # Passo 3: Concede permissão de execução ao gradlew
+      - name: Make gradlew executable
+        run: chmod +x gradlew
+
+      # Passo 4: Compila o APK
+      - name: Build APK
+        run: ./gradlew assembleDebug
+
+      # Passo 5: Faz upload do APK como um artefato
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/app-debug.apk
